@@ -37,11 +37,11 @@ var ticTacToe = ticTacToe || {};
     this.name = name;
   };
 
-  app.AiPlayer.prototype.getMove = function (board, side) {
+  app.AiPlayer.prototype.getMove = function (board, me) {
     if (board.length !== this.getNumberOfSquares()) throw new Error("invalid board");
-    if (side !== 1 && side !== 2) throw new Error("invalid side");
+    if (me !== 1 && me !== 2) throw new Error("invalid side");
 
-    return this.calculateMove(board, side);
+    return this.calculateMove(board, me);
   };
 
   app.AiPlayer.prototype.getNumberOfSquares = function () {
@@ -56,12 +56,60 @@ var ticTacToe = ticTacToe || {};
     }
   };
 
-  app.AiPlayer.prototype.calculateMove = function (board, side) {
+  app.AiPlayer.prototype.calculateMove = function (board, me) {
+    var enemy = this.getEnemy(me);
+    // stub to make the Ai always return a move...
+    var square = this.isSquareAvailable(board);
+    if (square !== false) return square;
+    // end stub. remove when coding commences.
+    this.isSquareAvailable(board);
+    var twoInARow = this.findTwoInARowWithEmptyOption(board, me);
+    if (twoInARow !== false) return twoInARow;
+    return false;
+    throw new Error('could not decide on a move');
+  };
+
+  app.AiPlayer.prototype.isSquareAvailable = function (board) {
     for (var i = 0; i < this.getNumberOfSquares(); i++) {
       if (board[i] === 0) {
-        return i;
+        return board[i];
       }
     }
-  };
+    throw new Error("there are no available squares to play");
+  }
+
+  app.AiPlayer.prototype.findTwoInARowWithEmptyOption = function (board, side) {
+    var vertically = this.findTwoInARowVerticallyWithEmptyOption(board, side);
+    if (vertically !== false) return vertically;
+
+    return 1;
+  }
+
+  app.AiPlayer.prototype.findTwoInARowVerticallyWithEmptyOption = function (board, side) {
+    var verticals = [];
+
+    verticals[0] = [board[0], board[3], board[6]];
+    verticals[1] = [board[1], board[4], board[7]];
+    verticals[2] = [board[2], board[5], board[8]];
+    var count = verticals.length;
+    for (var i = 0; i < verticals.length; i++) {
+      var emptySpot = false;
+      var sideCount = 0;
+      var count2 = verticals[i].length;
+      for (var k = 0; k < count2; k++) {
+        if (verticals[i][k] === 0) emptySpot = i + (3 * k);
+        if (verticals[i][k] === side) sideCount++;
+
+        if (emptySpot !== false && sideCount === 2) {
+          return emptySpot;
+        }
+      }
+    }
+    return false;
+  }
+
+  app.AiPlayer.prototype.getEnemy = function (me) {
+    return (me === 1) ? 2 : 1;
+  }
 
 })(ticTacToe);

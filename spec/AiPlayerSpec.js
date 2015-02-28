@@ -34,5 +34,17 @@ describe("AiPlayer", function() {
     expect(function(){ aiPlayer.setNumberOfSquares('not number'); }).toThrow(new Error("argument must be integer"));
   });
 
+  it("knows when a board is full", function() {
+    board = [1,1,1,1,1,1,1,1,1];
+    side = 1;
+    expect(function(){ aiPlayer.getMove(board, side); }).toThrow(new Error("there are no available squares to play"));
+  });
+
+  it("can find the winning move in vertical positions", function() {
+    board = [0,1,2,0,1,2,0,0,0];
+    side = 1;
+    expect(aiPlayer.getMove(board, side)).toEqual(7);
+  });
+
 
 });
