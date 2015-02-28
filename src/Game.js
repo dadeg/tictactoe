@@ -16,7 +16,7 @@ var Game = function(player1, player2) {
    *
    * @property player1
    * @type {Object}
-   * @default {}
+   * @default undefined
    */
   this.player1 = player1 || {};
 
@@ -25,7 +25,7 @@ var Game = function(player1, player2) {
    *
    * @property player2
    * @type {Object}
-   * @default {}
+   * @default undefined
    */
   this.player2 = player2 || {};
 
@@ -41,11 +41,20 @@ var Game = function(player1, player2) {
   /**
    * Tracks whether the game is won by either player
    *
-   * @property gameIsNotWon
-   * @type {bool}
+   * @property gameIsWon
+   * @type {Boolean}
    * @default true
    */
-  this.gameIsNotWon = true;
+  this.gameIsWon = false;
+
+  /**
+   * A reference to the PubSub object instance
+   *
+   * @property pubSub
+   * @type {Object}
+   * @default undefined
+   */
+  this.pubSub = new PubSub() || {};
 
   this.init();
 };
@@ -94,13 +103,13 @@ Game.prototype.runGame = function(currentPlayer) {
     nextPlayer = this.player1;
   }
 
-  if (this.gameIsNotWon) {
+  if (!this.gameIsWon) {
     move = currentPlayer.getMove(this.gameBoard, currentPlayer.side);
     this.updateGameBoard(move, currentPlayer);
     this.checkForWin();
     this.runGame(nextPlayer);
   } else {
-    this.publishWin();
+    this.publishWin(currentPlayer.side);
   }
 };
 
@@ -126,6 +135,23 @@ Game.prototype.updateGameBoard = function(move, currentPlayer) {
  * @chainable
  */
 Game.prototype.checkForWin = function() {
+  switch(true) {
+    case this.gameBoard[0] === this.gameBoard[1] && this.gameBoard[1] === this.gameBoard[2]:
+    case this.gameBoard[3] === this.gameBoard[4] && this.gameBoard[4] === this.gameBoard[5]:
+    case this.gameBoard[6] === this.gameBoard[7] && this.gameBoard[7] === this.gameBoard[8]:
+    case this.gameBoard[0] === this.gameBoard[3] && this.gameBoard[3] === this.gameBoard[6]:
+    case this.gameBoard[1] === this.gameBoard[4] && this.gameBoard[4] === this.gameBoard[7]:
+    case this.gameBoard[2] === this.gameBoard[5] && this.gameBoard[5] === this.gameBoard[8]:
+    case this.gameBoard[0] === this.gameBoard[4] && this.gameBoard[4] === this.gameBoard[8]:
+    case this.gameBoard[2] === this.gameBoard[4] && this.gameBoard[4] === this.gameBoard[6]:
+      this.gameIsWon = true;
+      break;
+  }
+
+  return this;
+};
+
+Game.prototype.checkForDraw = function() {
 
   return this;
 };
@@ -134,9 +160,13 @@ Game.prototype.checkForWin = function() {
  * Publishes to a PubSub object with winner information for use by other modules
  *
  * @method publishWin
+ * @param {Int} winningSide The winning side
  * @chainable
  */
-Game.prototype.publishWin = function() {
+Game.prototype.publishWin = function(winningSide) {
+  this.pubSubs.publish('Game is Won', {
+    winner: winningSide
+  });
 
   return this;
 };
