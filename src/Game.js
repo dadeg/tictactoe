@@ -16,7 +16,7 @@ var Game = function(player1, player2) {
    *
    * @property player1
    * @type {Object}
-   * @default null
+   * @default undefined
    */
   this.player1 = player1;
 
@@ -25,7 +25,7 @@ var Game = function(player1, player2) {
    *
    * @property player2
    * @type {Object}
-   * @default null
+   * @default undefined
    */
   this.player2 = player2;
 
@@ -34,13 +34,9 @@ var Game = function(player1, player2) {
    *
    * @property gameBoard
    * @type {Array}
-   * @default [null,null,null,null,null,null,null,null,null]
+   * @default undefined
    */
-  this.gameBoard = [
-                    null, null, null,
-                    null, null, null,
-                    null, null, null
-                   ];
+  this.gameBoard = [];
 
   this.init();
 };
