@@ -6,11 +6,33 @@ describe("AiPlayer", function() {
   });
 
   it("should be able to report its name", function() {
-
     expect(aiPlayer.getName()).toEqual('AI Player');
-
   });
 
+  it("should be able to make a move", function() {
+    board = [0,1,2,0,0,0,0,0,0];
+    side = 1;
+    expect(aiPlayer.getMove(board, side)).toMatch(/[0-9]/);
+  });
+
+  it("should throw an error when given a bad board", function() {
+    board = [0,1,2,0,0,0,0,0]; // not enough squares
+    side = 1;
+    expect(function(){ aiPlayer.getMove(board, side); } ).toThrow(new Error("invalid board"));
+  });
+
+  it("should throw an error when given a bad side", function() {
+    board = [0,1,2,0,0,0,0,0,0];
+    side = 'abc'; // nonsense
+    expect(function(){ aiPlayer.getMove(board, side); } ).toThrow(new Error("invalid side"));
+  });
+
+  it("can set and get the number of squares on the board", function() {
+    expect(aiPlayer.getNumberOfSquares()).toEqual(9);
+    aiPlayer.setNumberOfSquares(16);
+    expect(aiPlayer.getNumberOfSquares()).toEqual(16);
+    expect(function(){ aiPlayer.setNumberOfSquares('not number'); }).toThrow(new Error("argument must be integer"));
+  });
 
 
 });

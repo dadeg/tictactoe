@@ -20,6 +20,7 @@ var ticTacToe = ticTacToe || {};
       this.options = options;
     }
     this.name = this.options.name || "AI Player";
+    this.numberOfSquares = this.options.numberOfSquares || 9;
   };
 
   /**
@@ -28,8 +29,39 @@ var ticTacToe = ticTacToe || {};
    * @method getName
    * @returns this.name The name of the AiPlayer instantiation
    */
-  app.AiPlayer.prototype.getName = function() {
+  app.AiPlayer.prototype.getName = function () {
     return this.name;
+  };
+
+  app.AiPlayer.prototype.setName = function (name) {
+    this.name = name;
+  };
+
+  app.AiPlayer.prototype.getMove = function (board, side) {
+    if (board.length !== this.getNumberOfSquares()) throw new Error("invalid board");
+    if (side !== 1 && side !== 2) throw new Error("invalid side");
+
+    return this.calculateMove(board, side);
+  };
+
+  app.AiPlayer.prototype.getNumberOfSquares = function () {
+    return this.numberOfSquares;
+  };
+
+  app.AiPlayer.prototype.setNumberOfSquares = function (numberOfSquares) {
+    if (Number.isInteger(numberOfSquares)) {
+      this.numberOfSquares = numberOfSquares;
+    } else {
+      throw new Error("argument must be integer");
+    }
+  };
+
+  app.AiPlayer.prototype.calculateMove = function (board, side) {
+    for (var i = 0; i < this.getNumberOfSquares(); i++) {
+      if (board[i] === 0) {
+        return i;
+      }
+    }
   };
 
 })(ticTacToe);
