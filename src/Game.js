@@ -16,18 +16,18 @@ var Game = function(player1, player2) {
    *
    * @property player1
    * @type {Object}
-   * @default undefined
+   * @default {}
    */
-  this.player1 = player1;
+  this.player1 = player1 || {};
 
   /**
    * A reference to the player2 object instance
    *
    * @property player2
    * @type {Object}
-   * @default undefined
+   * @default {}
    */
-  this.player2 = player2;
+  this.player2 = player2 || {};
 
   /**
    * An array representing the tic tac toe game board
@@ -48,6 +48,21 @@ var Game = function(player1, player2) {
  * @returns Game
  */
 Game.prototype.init = function() {
+
+  this.assignSides();
+
+  return this;
+};
+
+/**
+ * Assigns tic tac toe sides to the players
+ *
+ * @method assignSides
+ * @returns Game
+ */
+Game.prototype.assignSides = function() {
+  this.player1.side = 1;
+  this.player2.side = 2;
 
   return this;
 };
