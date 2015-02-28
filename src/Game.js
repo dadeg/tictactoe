@@ -48,6 +48,15 @@ var Game = function(player1, player2) {
   this.gameIsWon = false;
 
   /**
+   * Tracks whether the game is a draw
+   *
+   * @property gameIsDrawn
+   * @type {Boolean}
+   * @default true
+   */
+  this.gameIsDrawn = false;
+
+  /**
    * A reference to the PubSub object instance
    *
    * @property pubSub
@@ -103,13 +112,16 @@ Game.prototype.runGame = function(currentPlayer) {
     nextPlayer = this.player1;
   }
 
-  if (!this.gameIsWon) {
+  if (!this.gameIsWon && !this.gameIsDrawn) {
     move = currentPlayer.getMove(this.gameBoard, currentPlayer.side);
     this.updateGameBoard(move, currentPlayer);
     this.checkForWin();
+    this.checkForDraw();
     this.runGame(nextPlayer);
-  } else {
+  } else if (this.gameIsWon){
     this.publishWin(currentPlayer.side);
+  } else if (this.gameIsDrawn){
+    this.publishDraw();
   }
 };
 
@@ -124,12 +136,15 @@ Game.prototype.runGame = function(currentPlayer) {
 Game.prototype.updateGameBoard = function(move, currentPlayer) {
   this.gameBoard[move] = currentPlayer.side;
 
+  this.pubSub.publish('gameUpdate', {
+    gameBoard: this.gameBoard
+  });
+
   return this;
 };
 
 /**
  * Checks the game board to see if the current player's move wins the game
- * or draws the game
  *
  * @method checkForWin
  * @chainable
@@ -151,8 +166,16 @@ Game.prototype.checkForWin = function() {
   return this;
 };
 
+/**
+ * Checks the game board to see if the current player's move draws the game
+ *
+ * @method checkForDraw
+ * @chainable
+ */
 Game.prototype.checkForDraw = function() {
-
+  if (this.gameBoard.indexOf(0) < 0) {
+    this.gameIsDrawn = true;
+  }
   return this;
 };
 
@@ -164,8 +187,22 @@ Game.prototype.checkForDraw = function() {
  * @chainable
  */
 Game.prototype.publishWin = function(winningSide) {
-  this.pubSubs.publish('Game is Won', {
+  this.pubSubs.publish('gameWon', {
     winner: winningSide
+  });
+
+  return this;
+};
+
+/**
+ * Publishes to a PubSub object with winner information for use by other modules
+ *
+ * @method publishDraw
+ * @chainable
+ */
+Game.prototype.publishDraw = function() {
+  this.pubSubs.publish('gameDrawn', {
+    draw: true
   });
 
   return this;
