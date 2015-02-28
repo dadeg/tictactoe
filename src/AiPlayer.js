@@ -19,7 +19,7 @@ var ticTacToe = ticTacToe || {};
     } else {
       this.options = options;
     }
-    this.name = options.name || "AI Player";
+    this.name = this.options.name || "AI Player";
   };
 
   /**
