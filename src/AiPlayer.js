@@ -58,18 +58,16 @@ var ticTacToe = ticTacToe || {};
 
   app.AiPlayer.prototype.calculateMove = function (board, me) {
     var enemy = this.getEnemy(me);
-    // stub to make the Ai always return a move...
-    var square = this.isSquareAvailable(board);
-    if (square !== false) return square;
-    // end stub. remove when coding commences.
-    this.isSquareAvailable(board);
-    var twoInARow = this.findTwoInARowWithEmptyOption(board, me);
-    if (twoInARow !== false) return twoInARow;
+    this.confirmThereIsAMoveAvailable(board);
+    var winningMove = this.findTwoInARowWithEmptyOption(board, me);
+    if (winningMove !== false) {
+      return winningMove;
+    }
     return false;
     throw new Error('could not decide on a move');
   };
 
-  app.AiPlayer.prototype.isSquareAvailable = function (board) {
+  app.AiPlayer.prototype.confirmThereIsAMoveAvailable = function (board) {
     for (var i = 0; i < this.getNumberOfSquares(); i++) {
       if (board[i] === 0) {
         return board[i];
@@ -80,27 +78,78 @@ var ticTacToe = ticTacToe || {};
 
   app.AiPlayer.prototype.findTwoInARowWithEmptyOption = function (board, side) {
     var vertically = this.findTwoInARowVerticallyWithEmptyOption(board, side);
-    if (vertically !== false) return vertically;
+    if (vertically !== false) {
+      return vertically;
+    }
+    var horizontally = this.findTwoInARowHorizontallyWithEmptyOption(board, side);
+    if (horizontally !== false) {
+      return horizontally;
+    }
+    var diagonally = this.findTwoInARowDiagonallyWithEmptyOption(board, side);
+    if (diagonally !== false) {
+      return diagonally;
+    }
 
+    // eventually return false if no move
     return 1;
   }
 
   app.AiPlayer.prototype.findTwoInARowVerticallyWithEmptyOption = function (board, side) {
     var verticals = [];
-
-    verticals[0] = [board[0], board[3], board[6]];
-    verticals[1] = [board[1], board[4], board[7]];
-    verticals[2] = [board[2], board[5], board[8]];
-    var count = verticals.length;
-    for (var i = 0; i < verticals.length; i++) {
+    var colCount;
+    verticals = this.getVerticalColumns(board);
+    var colCount = verticals.length;
+    for (var colNum = 0; colNum < colCount; colNum++) {
       var emptySpot = false;
       var sideCount = 0;
-      var count2 = verticals[i].length;
-      for (var k = 0; k < count2; k++) {
-        if (verticals[i][k] === 0) emptySpot = i + (3 * k);
-        if (verticals[i][k] === side) sideCount++;
+      var colSize = verticals[colNum].length;
+      for (var colPosition = 0; colPosition < colSize; colPosition++) {
+        if (verticals[colNum][colPosition] === 0) emptySpot = colNum + (3 * colPosition);
+        if (verticals[colNum][colPosition] === side) sideCount++;
 
-        if (emptySpot !== false && sideCount === 2) {
+        if (this.wouldBeWinningSpot(emptySpot, sideCount)) {
+          return emptySpot;
+        }
+      }
+    }
+    return false;
+  }
+
+  app.AiPlayer.prototype.findTwoInARowHorizontallyWithEmptyOption = function (board, side) {
+    var horizontals = [];
+    var colCount;
+    horizontals = this.getHorizontalColumns(board);
+    var colCount = horizontals.length;
+    for (var colNum = 0; colNum < colCount; colNum++) {
+      var emptySpot = false;
+      var sideCount = 0;
+      var colSize = horizontals[colNum].length;
+      for (var colPosition = 0; colPosition < colSize; colPosition++) {
+        if (horizontals[colNum][colPosition] === 0) emptySpot = (3 * colNum) + colPosition;
+        if (horizontals[colNum][colPosition] === side) sideCount++;
+
+        if (this.wouldBeWinningSpot(emptySpot, sideCount)) {
+          return emptySpot;
+        }
+      }
+    }
+    return false;
+  }
+
+  app.AiPlayer.prototype.findTwoInARowDiagonallyWithEmptyOption = function (board, side) {
+    var diagonals = [];
+    var colCount;
+    diagonals = this.getDiagonalColumns(board);
+    var colCount = diagonals.length;
+    for (var colNum = 0; colNum < colCount; colNum++) {
+      var emptySpot = false;
+      var sideCount = 0;
+      var colSize = diagonals[colNum].length;
+      for (var colPosition = 0; colPosition < colSize; colPosition++) {
+        if (diagonals[colNum][colPosition] === 0) emptySpot = (colNum * 2) + ((4 - (2 * colNum)) * colPosition);
+        if (diagonals[colNum][colPosition] === side) sideCount++;
+
+        if (this.wouldBeWinningSpot(emptySpot, sideCount)) {
           return emptySpot;
         }
       }
@@ -110,6 +159,37 @@ var ticTacToe = ticTacToe || {};
 
   app.AiPlayer.prototype.getEnemy = function (me) {
     return (me === 1) ? 2 : 1;
+  }
+
+  app.AiPlayer.prototype.wouldBeWinningSpot = function (thereIsAnEmptySquare, sameSideMarksInRowCount) {
+    return (thereIsAnEmptySquare !== false && sameSideMarksInRowCount === (this.getRowCount() - 1));
+  }
+
+  app.AiPlayer.prototype.getRowCount = function () {
+    return Math.sqrt(this.getNumberOfSquares());
+  }
+
+  app.AiPlayer.prototype.getVerticalColumns = function (board) {
+    var array = [];
+    array[0] = [board[0], board[3], board[6]];
+    array[1] = [board[1], board[4], board[7]];
+    array[2] = [board[2], board[5], board[8]];
+    return array;
+  }
+
+  app.AiPlayer.prototype.getHorizontalColumns = function (board) {
+    var array = [];
+    array[0] = [board[0], board[1], board[2]];
+    array[1] = [board[3], board[4], board[5]];
+    array[2] = [board[6], board[7], board[8]];
+    return array;
+  }
+
+  app.AiPlayer.prototype.getDiagonalColumns = function (board) {
+    var array = [];
+    array[0] = [board[0], board[4], board[8]];
+    array[1] = [board[2], board[4], board[6]];
+    return array;
   }
 
 })(ticTacToe);

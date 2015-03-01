@@ -46,5 +46,17 @@ describe("AiPlayer", function() {
     expect(aiPlayer.getMove(board, side)).toEqual(7);
   });
 
+  it("can find the winning move in horizontal positions", function() {
+    board = [0,0,0,2,2,0,1,1,0];
+    side = 2;
+    expect(aiPlayer.getMove(board, side)).toEqual(5);
+  });
+
+  it("can find the winning move in diagonal positions", function() {
+    board = [1,2,0,2,1,0,0,0,0];
+    side = 1;
+    expect(aiPlayer.getMove(board, side)).toEqual(8);
+  });
+
 
 });
