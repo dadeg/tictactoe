@@ -152,10 +152,6 @@ describe("AiPlayer", function() {
     expect(aiPlayer.getMove(board, side)).toEqual(3); // p2 blocks p1. draw.
   });
 
-  it("can play itself", function() {
-
-  });
-
 
 
 
