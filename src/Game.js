@@ -90,7 +90,9 @@ Game.prototype.init = function() {
  */
 Game.prototype.assignSides = function() {
   this.player1.side = 1;
+  this.player1.setSide(1);
   this.player2.side = 2;
+  this.player2.setSide(2);
 
   return this;
 };
