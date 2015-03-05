@@ -115,7 +115,7 @@ Game.prototype.runGame = function(currentPlayer) {
   }
 
   if (!this.gameIsWon && !this.gameIsDrawn) {
-    move = currentPlayer.getMove(this.gameBoard, currentPlayer.side);
+    move = currentPlayer.getMove(this.gameBoard);
     this.updateGameBoard(move, currentPlayer);
     this.checkForWin();
     this.checkForDraw();
@@ -136,7 +136,11 @@ Game.prototype.runGame = function(currentPlayer) {
  * @chainable
  */
 Game.prototype.updateGameBoard = function(move, currentPlayer) {
-  this.gameBoard[move] = currentPlayer.side;
+  if (this.gameBoard[move] === 0) {
+    this.gameBoard[move] = currentPlayer.side;
+  } else {
+    // notify player move was illegal
+  }
 
   this.pubSub.publish('gameUpdate', {
     gameBoard: this.gameBoard
