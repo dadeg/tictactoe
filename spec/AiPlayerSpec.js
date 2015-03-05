@@ -2,7 +2,7 @@ describe("AiPlayer", function() {
   var aiPlayer;
 
   beforeEach(function() {
-    aiPlayer = new ticTacToe.AiPlayer();
+    aiPlayer = new ticTacToe.Player({adapter: new ticTacToe.AiAdapter, name: 'AI Player'});
   });
 
   it("should be able to report its name", function() {
@@ -25,13 +25,6 @@ describe("AiPlayer", function() {
     board = [0,1,2,0,0,0,0,0,0];
     side = 'abc'; // nonsense
     expect(function(){ aiPlayer.getMove(board, side); } ).toThrow(new Error("invalid side"));
-  });
-
-  it("can set and get the number of squares on the board", function() {
-    expect(aiPlayer.getNumberOfSquares()).toEqual(9);
-    aiPlayer.setNumberOfSquares(16);
-    expect(aiPlayer.getNumberOfSquares()).toEqual(16);
-    expect(function(){ aiPlayer.setNumberOfSquares('not number'); }).toThrow(new Error("argument must be integer"));
   });
 
   it("knows when a board is full", function() {

@@ -19,8 +19,7 @@ var ticTacToe = ticTacToe || {};
     } else {
       this.options = options;
     }
-    this.name = this.options.name || "AI Player";
-    this.numberOfSquares = this.options.numberOfSquares || 9;
+    this.name = this.options.name || "Player";
     this.adapter = this.options.adapter || new app.HtmlAdapter();
   };
 
@@ -38,37 +37,16 @@ var ticTacToe = ticTacToe || {};
     this.name = name;
   };
 
+  /**
+   * This is what the Game object will call in order to get the next move from this player.
+   * This uses the adapter to ask for a move. The adapter could be human-based, or AI.
+   * @param {array} board example: [0,0,0,0,0,1,0,2,0]
+   * @param {integer} me    1 or 2. your side.
+   */
   app.Player.prototype.getMove = function (board, me) {
-    if (board.length !== this.getNumberOfSquares()) throw new Error("invalid board");
-    if (me !== 1 && me !== 2) throw new Error("invalid side");
-    this.confirmThereIsAMoveAvailable(board);
-
-    return this.askHumanForMove(board, me);
-  };
-
-  app.Player.prototype.askHumanForMove = function (board, me) {
     return this.adapter.getMove(board, me);
   };
 
-  app.Player.prototype.getNumberOfSquares = function () {
-    return this.numberOfSquares;
-  };
 
-  app.Player.prototype.setNumberOfSquares = function (numberOfSquares) {
-    if (Number.isInteger(numberOfSquares)) {
-      this.numberOfSquares = numberOfSquares;
-    } else {
-      throw new Error("argument must be integer");
-    }
-  };
-
-  app.Player.prototype.confirmThereIsAMoveAvailable = function (board) {
-    for (var i = 0; i < this.getNumberOfSquares(); i++) {
-      if (board[i] === 0) {
-        return i;
-      }
-    }
-    throw new Error("there are no available squares to play");
-  }
 
 })(ticTacToe);

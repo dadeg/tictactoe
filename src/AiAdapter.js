@@ -1,62 +1,44 @@
-/**
- * @fileOverview AiPlayer module definition
- */
-
 var ticTacToe = ticTacToe || {};
 
 (function (app) {
 
   /**
-   * A class that plays TicTacToe without user input
+   * An adapter for the Player class that implements asking the user for moves through HTML.
    *
-   * @class AiPlayer
+   * @class HtmlAdapter
    * @constructor
-   * @param {Object} options A set of options chosen by the instantiator of the class
    */
-  app.AiPlayer = function (options) {
-    if (!options) {
-      this.options = {};
-    } else {
-      this.options = options;
-    }
-    this.name = this.options.name || "AI Player";
-    this.numberOfSquares = this.options.numberOfSquares || 9;
+  app.AiAdapter = function (player) {
   };
 
   /**
-   * Returns the name of the AiPlayer instantiation
-   *
-   * @method getName
-   * @returns this.name The name of the AiPlayer instantiation
+   * Getter for name
    */
-  app.AiPlayer.prototype.getName = function () {
-    return this.name;
+  app.AiAdapter.prototype.getNumberOfSquares = function () {
+    return 9;
   };
 
-  app.AiPlayer.prototype.setName = function (name) {
-    this.name = name;
-  };
-
-  app.AiPlayer.prototype.getMove = function (board, me) {
-    if (board.length !== this.getNumberOfSquares()) throw new Error("invalid board");
-    if (me !== 1 && me !== 2) throw new Error("invalid side");
-
-    return this.calculateMove(board, me);
-  };
-
-  app.AiPlayer.prototype.getNumberOfSquares = function () {
-    return this.numberOfSquares;
-  };
-
-  app.AiPlayer.prototype.setNumberOfSquares = function (numberOfSquares) {
+  /**
+   * Setter for number of squares on the board. needs to live on the board object.
+   * @param {integer} numberOfSquares number of squares on the board. probably
+   * should be on the board object.
+   */
+  app.AiAdapter.prototype.setNumberOfSquares = function (numberOfSquares) {
     if (Number.isInteger(numberOfSquares)) {
       this.numberOfSquares = numberOfSquares;
     } else {
       throw new Error("argument must be integer");
     }
   };
+  /**
+   * This adapter calculates its move from an algorithm instead of asking a human.
+   * @param {array} board
+   * @param {integer} me
+   */
+  app.AiAdapter.prototype.getMove = function (board, me) {
+    if (board.length !== this.getNumberOfSquares()) throw new Error("invalid board");
+    if (me !== 1 && me !== 2) throw new Error("invalid side");
 
-  app.AiPlayer.prototype.calculateMove = function (board, me) {
     var firstAvailableMove = this.confirmThereIsAMoveAvailable(board);
 
     if (this.isFirstMove(board)) {
@@ -79,7 +61,7 @@ var ticTacToe = ticTacToe || {};
     }
 
     if (this.squaresPlayed(board) === 3) {
-      if (this.PlayedOppositeCornersAndMiddle(board)) {
+      if (this.playedOppositeCornersAndMiddle(board)) {
         console.log('I am playing an edge that is not a corner.')
         return this.edgeNotCorner(board);
       }
@@ -113,7 +95,11 @@ var ticTacToe = ticTacToe || {};
     return firstAvailableMove;
   };
 
-  app.AiPlayer.prototype.confirmThereIsAMoveAvailable = function (board) {
+  /**
+   * Determines if the board is legitimate and returns the first available move.
+   * @param {array} board
+   */
+  app.AiAdapter.prototype.confirmThereIsAMoveAvailable = function (board) {
     for (var i = 0; i < this.getNumberOfSquares(); i++) {
       if (board[i] === 0) {
         return i;
@@ -122,7 +108,13 @@ var ticTacToe = ticTacToe || {};
     throw new Error("there are no available squares to play");
   }
 
-  app.AiPlayer.prototype.findTwoInARowWithEmptyOption = function (board, side) {
+  /**
+   * This determines if there is a row with 2 same side moves and an empty move.
+   * It determines if there is a winning move present on the board.
+   * @param {array} board
+   * @param {integer} side
+   */
+  app.AiAdapter.prototype.findTwoInARowWithEmptyOption = function (board, side) {
     var vertically = this.findTwoInARowVerticallyWithEmptyOption(board, side);
     if (vertically !== false) {
       return vertically;
@@ -139,7 +131,12 @@ var ticTacToe = ticTacToe || {};
     return false;
   }
 
-  app.AiPlayer.prototype.findTwoInARowVerticallyWithEmptyOption = function (board, side) {
+  /**
+   * This is a sub-method of findTwoInARowWithEmptyOption to find vertically.
+   * @param {array} board
+   * @param {integer} side
+   */
+  app.AiAdapter.prototype.findTwoInARowVerticallyWithEmptyOption = function (board, side) {
     for (var colNum = 0; colNum < this.getRowCount(); colNum++) {
       var emptySpot = false;
       var sideCount = 0;
@@ -158,7 +155,13 @@ var ticTacToe = ticTacToe || {};
     return false;
   }
 
-  app.AiPlayer.prototype.findTwoInARowHorizontallyWithEmptyOption = function (board, side) {
+  /**
+   * This is a sub-method of findTwoInARowWithEmptyOption to find horizontally.
+   * Could probably be refactored with vertical and diagonal.
+   * @param {array} board
+   * @param {integer} side
+   */
+  app.AiAdapter.prototype.findTwoInARowHorizontallyWithEmptyOption = function (board, side) {
     for (var colNum = 0; colNum < this.getRowCount(); colNum++) {
       var emptySpot = false;
       var sideCount = 0;
@@ -177,7 +180,13 @@ var ticTacToe = ticTacToe || {};
     return false;
   }
 
-  app.AiPlayer.prototype.findTwoInARowDiagonallyWithEmptyOption = function (board, side) {
+  /**
+   * This is a sub-method of findTwoInARowWithEmptyOption to find diagonally.
+   * Could probably be refactored into the other vertical and horizontal methods.
+   * @param {array} board
+   * @param {integer} side
+   */
+  app.AiAdapter.prototype.findTwoInARowDiagonallyWithEmptyOption = function (board, side) {
     for (var colNum = 0; colNum < this.getDiagonalRowCount(); colNum++) {
       var emptySpot = false;
       var sideCount = 0;
@@ -196,35 +205,71 @@ var ticTacToe = ticTacToe || {};
     return false;
   }
 
-  app.AiPlayer.prototype.getEnemy = function (me) {
+  /**
+   * This return the opponent's side.
+   * @param {integer} me my side. 1 or 2.
+   */
+  app.AiAdapter.prototype.getEnemy = function (me) {
     return (me === 1) ? 2 : 1;
   }
 
-  app.AiPlayer.prototype.wouldBeWinningSpot = function (thereIsAnEmptySquare, sameSideMarksInRowCount) {
+  /**
+   * This checks whether the move is a winning move.
+   * @param {boolean} thereIsAnEmptySquare
+   * @param {integer} sameSideMarksInRowCount number of similar side moves in this row/column/diagonal.
+   */
+  app.AiAdapter.prototype.wouldBeWinningSpot = function (thereIsAnEmptySquare, sameSideMarksInRowCount) {
     return (thereIsAnEmptySquare !== false && sameSideMarksInRowCount === (this.getRowCount() - 1));
   }
 
-  app.AiPlayer.prototype.getRowCount = function () {
+  /**
+   * returns number of rows given number of squares.
+   */
+  app.AiAdapter.prototype.getRowCount = function () {
     return Math.sqrt(this.getNumberOfSquares());
   }
 
-  app.AiPlayer.prototype.getDiagonalRowCount = function () {
+  /**
+   * returns the number of rows that are diagonal. Could probably find this via an algorithm for any size board.
+   * Although it should always be 2.
+   */
+  app.AiAdapter.prototype.getDiagonalRowCount = function () {
     return 2;
   }
 
-  app.AiPlayer.prototype.mapVerticalColumnToSquare = function (columnNumber, columnPosition) {
+  /**
+   * Algorithm for determining the square number based on column and position.
+   * @param {integer} columnNumber   left to right, 0,1,2.
+   * @param {integer} columnPosition top to bottom, 0,1,2.
+   */
+  app.AiAdapter.prototype.mapVerticalColumnToSquare = function (columnNumber, columnPosition) {
     return columnNumber + (3 * columnPosition);
   }
 
-  app.AiPlayer.prototype.mapHorizontalColumnToSquare = function (columnNumber, columnPosition) {
+  /**
+   * Algorithm for determining the square number based on row and position.
+   * @param {integer} columnNumber   top to bottom, 0,1,2.
+   * @param {integer} columnPosition left to right, 0,1,2.
+   */
+  app.AiAdapter.prototype.mapHorizontalColumnToSquare = function (columnNumber, columnPosition) {
     return (3 * columnNumber) + columnPosition;
   }
 
-  app.AiPlayer.prototype.mapDiagonalColumnToSquare = function (columnNumber, columnPosition) {
+  /**
+   * Algorithm for determining the square number based on row and position.
+   * @param {integer} columnNumber   top left to bottom right = 0. top right to bottom left = 1.
+   * @param {integer} columnPosition from top to bottom, 0,1,2.
+   */
+  app.AiAdapter.prototype.mapDiagonalColumnToSquare = function (columnNumber, columnPosition) {
     return (columnNumber * 2) + ((4 - (2 * columnNumber)) * columnPosition);
   }
 
-  app.AiPlayer.prototype.findMoveIfSoloAndRestEmpty = function (board, side) {
+  /**
+   * Determines if a row has a single move in it and the rest of the row is empty.
+   * @param {array} board
+   * @param {integer} side
+   */
+  app.AiAdapter.prototype.findMoveIfSoloAndRestEmpty = function (board, side) {
     var diagonally = this.findMoveIfSoloAndRestEmptyOnDiagonal(board, side);
     if (diagonally !== false) {
       return diagonally;
@@ -241,7 +286,12 @@ var ticTacToe = ticTacToe || {};
     return false;
   }
 
-  app.AiPlayer.prototype.findMoveIfSoloAndRestEmptyOnDiagonal = function (board, side) {
+  /**
+   * Sub-method for diagonals for findMoveIfSoloAndRestEmpty
+   * @param {array} board
+   * @param {integer} side
+   */
+  app.AiAdapter.prototype.findMoveIfSoloAndRestEmptyOnDiagonal = function (board, side) {
     for (var colNum = 0; colNum < this.getDiagonalRowCount(); colNum++) {
 
       var sideCount = 0;
@@ -275,7 +325,12 @@ var ticTacToe = ticTacToe || {};
     return false;
   }
 
-  app.AiPlayer.prototype.findMoveIfSoloAndRestEmptyOnVertical = function (board, side) {
+  /**
+   * Sub-method for verticals for findMoveIfSoloAndRestEmpty
+   * @param {array} board
+   * @param {integer} side
+   */
+  app.AiAdapter.prototype.findMoveIfSoloAndRestEmptyOnVertical = function (board, side) {
     for (var colNum = 0; colNum < this.getRowCount(); colNum++) {
 
       var sideCount = 0;
@@ -309,7 +364,12 @@ var ticTacToe = ticTacToe || {};
     return false;
   }
 
-  app.AiPlayer.prototype.findMoveIfSoloAndRestEmptyOnHorizontal = function (board, side) {
+  /**
+   * Sub-method for horizontals for findMoveIfSoloAndRestEmpty
+   * @param {array} board
+   * @param {integer} side
+   */
+  app.AiAdapter.prototype.findMoveIfSoloAndRestEmptyOnHorizontal = function (board, side) {
     for (var colNum = 0; colNum < this.getRowCount(); colNum++) {
 
       var sideCount = 0;
@@ -343,11 +403,20 @@ var ticTacToe = ticTacToe || {};
     return false;
   }
 
-  app.AiPlayer.prototype.isSoloAndRestEmpty = function (sideCount, enemyCount) {
+  /**
+   * Determines if a row is a single move with the rest empty.
+   * @param {[type]} sideCount  [description]
+   * @param {[type]} enemyCount [description]
+   */
+  app.AiAdapter.prototype.isSoloAndRestEmpty = function (sideCount, enemyCount) {
     return (sideCount === 1 && enemyCount === 0);
   }
 
-  app.AiPlayer.prototype.squaresPlayed = function (board) {
+  /**
+   * counts the number of moves.
+   * @param {array} board
+   */
+  app.AiAdapter.prototype.squaresPlayed = function (board) {
     var count = board.length;
     var squaresPlayed = 0;
     for (i = 0; i < count; i++) {
@@ -358,7 +427,11 @@ var ticTacToe = ticTacToe || {};
     return squaresPlayed;
   }
 
-  app.AiPlayer.prototype.findOpenCorner = function (board) {
+  /**
+   * returns the first corner that has not been played.
+   * @param {array} board
+   */
+  app.AiAdapter.prototype.findOpenCorner = function (board) {
     if (board[0] === 0) { return 0; }
     if (board[2] === 0) { return 2; }
     if (board[6] === 0) { return 6; }
@@ -366,32 +439,52 @@ var ticTacToe = ticTacToe || {};
     return false;
   }
 
-  app.AiPlayer.prototype.isFirstMove = function (board) {
+  /**
+   * Determines whether the board has any moves on it yet.
+   * @param {array} board [description]
+   */
+  app.AiAdapter.prototype.isFirstMove = function (board) {
     return (this.squaresPlayed(board) === 0);
   }
 
-  app.AiPlayer.prototype.PlayedCornerThenPlayedMiddle = function (board) {
+  /**
+   * Determines if there is a corner move and a middle move. Used only if there squaresPlayed === 2.
+   * @param {array} board
+   */
+  app.AiAdapter.prototype.PlayedCornerThenPlayedMiddle = function (board) {
     if (this.cornerHasBeenPlayed(board) && this.middleHasBeenPlayed(board)) {
       return true;
     }
     return false;
   }
 
-  app.AiPlayer.prototype.cornerHasBeenPlayed = function (board) {
+  /**
+   * Returns whether any corner has been played.
+   * @param {array} board
+   */
+  app.AiAdapter.prototype.cornerHasBeenPlayed = function (board) {
     if (board[0] !== 0 || board[2] !== 0 || board[6] !== 0 || board[8] !== 0) {
       return true;
     }
     return false;
   }
 
-  app.AiPlayer.prototype.middleHasBeenPlayed = function (board) {
+  /**
+   * returns whether the middle square has been played.
+   * @param {array} board
+   */
+  app.AiAdapter.prototype.middleHasBeenPlayed = function (board) {
     if (board[4]) {
       return true;
     }
     return false;
   }
 
-  app.AiPlayer.prototype.oppositeCorner = function (board) {
+  /**
+   * finds the first empty opposite corner of a corner that has been played.
+   * @param {array} board
+   */
+  app.AiAdapter.prototype.oppositeCorner = function (board) {
     if (board[0] !== 0 && this.squareIsEmpty(board[8])) { return 8; }
     if (board[2] !== 0 && this.squareIsEmpty(board[6])) { return 6; }
     if (board[6] !== 0 && this.squareIsEmpty(board[2])) { return 2; }
@@ -399,33 +492,56 @@ var ticTacToe = ticTacToe || {};
     return false;
   }
 
-  app.AiPlayer.prototype.squareIsEmpty = function (square) {
+  /**
+   * Determines whether a square is empty.
+   * @param {integer} square
+   */
+  app.AiAdapter.prototype.squareIsEmpty = function (square) {
     return (square === 0) ? true : false;
   }
 
-  app.AiPlayer.prototype.getMiddleSquare = function () {
+  /**
+   * returns the middle square of the board. Could be turned in to an algorithm based on size of board.
+   */
+  app.AiAdapter.prototype.getMiddleSquare = function () {
     return 4;
   }
 
-  app.AiPlayer.prototype.PlayedOppositeCornersAndMiddle = function (board) {
+  /**
+   * Determines if the board has a middle square and two opposite corners played.
+   * This is used when squaresPlayed === 3.
+   * @param {array} board
+   */
+  app.AiAdapter.prototype.playedOppositeCornersAndMiddle = function (board) {
     if (this.opposingCornersPlayed(board) && this.middleHasBeenPlayed(board)) {
       return true;
     }
     return false;
   }
 
-  app.AiPlayer.prototype.opposingCornersPlayed = function (board) {
+  /**
+   * Helper method for playedOppositeCornersAndMiddle.
+   * Returns whether two opposing corners have been played.
+   * @param {array} board
+   */
+  app.AiAdapter.prototype.opposingCornersPlayed = function (board) {
     if ((board[0] !== 0 && board[8] !== 0) || (board[2] !== 0 && board[6] !== 0)) {
       return true;
     }
     return false;
   }
 
-  app.AiPlayer.prototype.edgeNotCorner = function (board) {
+  /**
+   * Returns the first available square that is not a corner but is on the outside.
+   * @param {array} board
+   */
+  app.AiAdapter.prototype.edgeNotCorner = function (board) {
     if (board[1] === 0) { return 1; }
     if (board[3] === 0) { return 3; }
     if (board[5] === 0) { return 5; }
     if (board[7] === 0) { return 7; }
     return false;
   }
+
+
 })(ticTacToe);
