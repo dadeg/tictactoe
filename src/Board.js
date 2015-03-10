@@ -50,8 +50,8 @@ var ticTacToe = ticTacToe || {};
     throw new Error("That is not a valid move")
   };
 
-  app.Board.prototype.isSquareEmpty = function (square) {
-    return (this.squareStatus[square] === 0);
+  app.Board.prototype.getSquareValue = function (square) {
+    return this.squareStatus[square];
   };
 
   app.Board.prototype.findNextPlayer = function () {
@@ -72,5 +72,6 @@ var ticTacToe = ticTacToe || {};
     }
     return 2;
   };
+
 
 })(ticTacToe);

@@ -13,13 +13,6 @@ var ticTacToe = ticTacToe || {};
   };
 
   /**
-   * Getter for name
-   */
-  app.AiAdapter.prototype.getNumberOfSquares = function (board) {
-    return board.length;
-  };
-
-  /**
    * This adapter calculates its move from an algorithm instead of asking a human.
    * @param {array} board
    * @param {integer} me
@@ -88,7 +81,7 @@ var ticTacToe = ticTacToe || {};
    * @param {array} board
    */
   app.AiAdapter.prototype.confirmThereIsAMoveAvailable = function (board) {
-    for (var i = 0; i < this.getNumberOfSquares(board); i++) {
+    for (var i = 0; i < board.getNumberOfSquares(); i++) {
       if (this.isSquareEmpty(i, board)) {
         return i;
       }
@@ -129,10 +122,10 @@ var ticTacToe = ticTacToe || {};
       var emptySpot = false;
       var sideCount = 0;
       for (var colPosition = 0; colPosition < this.getRowCount(board); colPosition++) {
-        if (board[this.mapVerticalColumnToSquare(colNum,colPosition, board)] === 0) {
+        if (this.isSquareEmpty(this.mapVerticalColumnToSquare(colNum,colPosition, board), board)) {
           emptySpot = this.mapVerticalColumnToSquare(colNum, colPosition, board);
         }
-        if (board[this.mapVerticalColumnToSquare(colNum,colPosition, board)] === side) {
+        if (this.compareSquareValue(this.mapVerticalColumnToSquare(colNum,colPosition, board), side, board)) {
           sideCount++;
         }
         if (this.wouldBeWinningSpot(emptySpot, sideCount, board)) {
@@ -154,10 +147,10 @@ var ticTacToe = ticTacToe || {};
       var emptySpot = false;
       var sideCount = 0;
       for (var colPosition = 0; colPosition < this.getRowCount(board); colPosition++) {
-        if (board[this.mapHorizontalColumnToSquare(colNum, colPosition, board)] === 0) {
+        if (this.isSquareEmpty(this.mapHorizontalColumnToSquare(colNum, colPosition, board), board)) {
           emptySpot = this.mapHorizontalColumnToSquare(colNum, colPosition, board);
         }
-        if (board[this.mapHorizontalColumnToSquare(colNum, colPosition, board)] === side) {
+        if (this.compareSquareValue(this.mapHorizontalColumnToSquare(colNum, colPosition, board), side, board)) {
           sideCount++;
         }
         if (this.wouldBeWinningSpot(emptySpot, sideCount, board)) {
@@ -179,10 +172,10 @@ var ticTacToe = ticTacToe || {};
       var emptySpot = false;
       var sideCount = 0;
       for (var colPosition = 0; colPosition < this.getRowCount(board); colPosition++) {
-        if (board[this.mapDiagonalColumnToSquare(colNum, colPosition, board)] === 0) {
+        if (this.isSquareEmpty(this.mapDiagonalColumnToSquare(colNum, colPosition, board), board)) {
           emptySpot = this.mapDiagonalColumnToSquare(colNum, colPosition, board);
         }
-        if (board[this.mapDiagonalColumnToSquare(colNum,colPosition, board)] === side) {
+        if (this.compareSquareValue(this.mapDiagonalColumnToSquare(colNum,colPosition, board), side, board)) {
           sideCount++;
         }
         if (this.wouldBeWinningSpot(emptySpot, sideCount, board)) {
@@ -214,7 +207,7 @@ var ticTacToe = ticTacToe || {};
    * returns number of rows given number of squares.
    */
   app.AiAdapter.prototype.getRowCount = function (board) {
-    return Math.sqrt(this.getNumberOfSquares(board));
+    return Math.sqrt(board.getNumberOfSquares());
   }
 
   /**
@@ -295,13 +288,13 @@ var ticTacToe = ticTacToe || {};
       var oppositeSideCount = 0;
       var emptySpot = false;
       for (var colPosition = 0; colPosition < this.getRowCount(board); colPosition++) {
-        if (board[this.mapDiagonalColumnToSquare(colNum, colPosition, board)] === 0) {
+        if (this.isSquareEmpty(this.mapDiagonalColumnToSquare(colNum, colPosition, board), board)) {
           emptySpot = colPosition;
         }
-        if (board[this.mapDiagonalColumnToSquare(colNum, colPosition, board)] === side) {
+        if (this.compareSquareValue(this.mapDiagonalColumnToSquare(colNum, colPosition, board), side, board)) {
           sideCount++;
         }
-        if (board[this.mapDiagonalColumnToSquare(colNum, colPosition, board)] === this.getOpponent(side)) {
+        if (this.compareSquareValue(this.mapDiagonalColumnToSquare(colNum, colPosition, board), this.getOpponent(side), board)) {
           oppositeSideCount++;
         }
       }
@@ -334,13 +327,13 @@ var ticTacToe = ticTacToe || {};
       var oppositeSideCount = 0;
       var emptySpot = false;
       for (var colPosition = 0; colPosition < this.getRowCount(board); colPosition++) {
-        if (board[this.mapVerticalColumnToSquare(colNum,colPosition, board)] === 0) {
+        if (this.isSquareEmpty(this.mapVerticalColumnToSquare(colNum,colPosition, board), board)) {
           emptySpot = colPosition;
         }
-        if (board[this.mapVerticalColumnToSquare(colNum,colPosition, board)] === side) {
+        if (this.compareSquareValue(this.mapVerticalColumnToSquare(colNum,colPosition, board), side, board)) {
           sideCount++;
         }
-        if (board[this.mapVerticalColumnToSquare(colNum,colPosition, board)] === this.getOpponent(side)) {
+        if (this.compareSquareValue(this.mapVerticalColumnToSquare(colNum,colPosition, board), this.getOpponent(side), board)) {
           oppositeSideCount++;
         }
       }
@@ -373,13 +366,13 @@ var ticTacToe = ticTacToe || {};
       var oppositeSideCount = 0;
       var emptySpot = false;
       for (var colPosition = 0; colPosition < this.getRowCount(board); colPosition++) {
-        if (board[this.mapHorizontalColumnToSquare(colNum, colPosition, board)] === 0) {
+        if (this.isSquareEmpty(this.mapHorizontalColumnToSquare(colNum, colPosition, board), board)) {
           emptySpot = colPosition;
         }
-        if (board[this.mapHorizontalColumnToSquare(colNum, colPosition, board)] === side) {
+        if (this.compareSquareValue(this.mapHorizontalColumnToSquare(colNum, colPosition, board), side, board)) {
           sideCount++;
         }
-        if (board[this.mapHorizontalColumnToSquare(colNum, colPosition, board)] === this.getOpponent(side)) {
+        if (this.compareSquareValue(this.mapHorizontalColumnToSquare(colNum, colPosition, board), this.getOpponent(side), board)) {
           oppositeSideCount++;
         }
       }
@@ -414,7 +407,7 @@ var ticTacToe = ticTacToe || {};
    * @param {array} board
    */
   app.AiAdapter.prototype.squaresPlayed = function (board) {
-    var count = this.getNumberOfSquares(board);
+    var count = board.getNumberOfSquares();
     var squaresPlayed = 0;
     var i;
     for (i = 0; i < count; i++) {
@@ -489,14 +482,22 @@ var ticTacToe = ticTacToe || {};
    * @param {integer} square
    */
   app.AiAdapter.prototype.isSquareEmpty = function (square, board) {
-    return (board[square] === 0);
+    return this.compareSquareValue(square, 0, board);
+  }
+
+  /**
+   * Determines whether a square is empty.
+   * @param {integer} square
+   */
+  app.AiAdapter.prototype.compareSquareValue = function (square, side, board) {
+    return (board.getSquareValue(square) === side);
   }
 
   /**
    * returns the middle square of the board. Could be turned in to an algorithm based on size of board.
    */
   app.AiAdapter.prototype.getMiddleSquare = function (board) {
-    return (board.length - 1) / 2;
+    return (board.getNumberOfSquares() - 1) / 2;
   }
 
   /**
