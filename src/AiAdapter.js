@@ -30,7 +30,7 @@ var ticTacToe = ticTacToe || {};
     if (this.squaresPlayed(board) === 1) {
       if (this.cornerHasBeenPlayed(board)) {
         console.log('I am playing middle square.');
-        return this.getMiddleSquare(board);
+        return board.getMiddleSquare();
       }
     }
 
@@ -82,7 +82,7 @@ var ticTacToe = ticTacToe || {};
    */
   app.AiAdapter.prototype.confirmThereIsAMoveAvailable = function (board) {
     for (var i = 0; i < board.getNumberOfSquares(); i++) {
-      if (this.isSquareEmpty(i, board)) {
+      if (board.isSquareEmpty(i)) {
         return i;
       }
     }
@@ -118,14 +118,14 @@ var ticTacToe = ticTacToe || {};
    * @param {integer} side
    */
   app.AiAdapter.prototype.findTwoInARowVerticallyWithEmptyOption = function (board, side) {
-    for (var colNum = 0; colNum < this.getRowCount(board); colNum++) {
+    for (var colNum = 0; colNum < board.getRowCount(); colNum++) {
       var emptySpot = false;
       var sideCount = 0;
-      for (var colPosition = 0; colPosition < this.getRowCount(board); colPosition++) {
-        if (this.isSquareEmpty(this.mapVerticalColumnToSquare(colNum,colPosition, board), board)) {
-          emptySpot = this.mapVerticalColumnToSquare(colNum, colPosition, board);
+      for (var colPosition = 0; colPosition < board.getRowCount(); colPosition++) {
+        if (board.isSquareEmpty(board.mapVerticalColumnToSquare(colNum,colPosition))) {
+          emptySpot = board.mapVerticalColumnToSquare(colNum, colPosition);
         }
-        if (this.compareSquareValue(this.mapVerticalColumnToSquare(colNum,colPosition, board), side, board)) {
+        if (board.isSquareEqual(board.mapVerticalColumnToSquare(colNum,colPosition), side)) {
           sideCount++;
         }
         if (this.wouldBeWinningSpot(emptySpot, sideCount, board)) {
@@ -143,14 +143,14 @@ var ticTacToe = ticTacToe || {};
    * @param {integer} side
    */
   app.AiAdapter.prototype.findTwoInARowHorizontallyWithEmptyOption = function (board, side) {
-    for (var colNum = 0; colNum < this.getRowCount(board); colNum++) {
+    for (var colNum = 0; colNum < board.getRowCount(); colNum++) {
       var emptySpot = false;
       var sideCount = 0;
-      for (var colPosition = 0; colPosition < this.getRowCount(board); colPosition++) {
-        if (this.isSquareEmpty(this.mapHorizontalColumnToSquare(colNum, colPosition, board), board)) {
-          emptySpot = this.mapHorizontalColumnToSquare(colNum, colPosition, board);
+      for (var colPosition = 0; colPosition < board.getRowCount(); colPosition++) {
+        if (board.isSquareEmpty(board.mapHorizontalColumnToSquare(colNum, colPosition))) {
+          emptySpot = board.mapHorizontalColumnToSquare(colNum, colPosition);
         }
-        if (this.compareSquareValue(this.mapHorizontalColumnToSquare(colNum, colPosition, board), side, board)) {
+        if (board.isSquareEqual(board.mapHorizontalColumnToSquare(colNum, colPosition), side)) {
           sideCount++;
         }
         if (this.wouldBeWinningSpot(emptySpot, sideCount, board)) {
@@ -168,14 +168,14 @@ var ticTacToe = ticTacToe || {};
    * @param {integer} side
    */
   app.AiAdapter.prototype.findTwoInARowDiagonallyWithEmptyOption = function (board, side) {
-    for (var colNum = 0; colNum < this.getDiagonalRowCount(); colNum++) {
+    for (var colNum = 0; colNum < board.getDiagonalRowCount(); colNum++) {
       var emptySpot = false;
       var sideCount = 0;
-      for (var colPosition = 0; colPosition < this.getRowCount(board); colPosition++) {
-        if (this.isSquareEmpty(this.mapDiagonalColumnToSquare(colNum, colPosition, board), board)) {
-          emptySpot = this.mapDiagonalColumnToSquare(colNum, colPosition, board);
+      for (var colPosition = 0; colPosition < board.getRowCount(); colPosition++) {
+        if (board.isSquareEmpty(board.mapDiagonalColumnToSquare(colNum, colPosition))) {
+          emptySpot = board.mapDiagonalColumnToSquare(colNum, colPosition);
         }
-        if (this.compareSquareValue(this.mapDiagonalColumnToSquare(colNum,colPosition, board), side, board)) {
+        if (board.isSquareEqual(board.mapDiagonalColumnToSquare(colNum,colPosition), side)) {
           sideCount++;
         }
         if (this.wouldBeWinningSpot(emptySpot, sideCount, board)) {
@@ -192,7 +192,7 @@ var ticTacToe = ticTacToe || {};
    */
   app.AiAdapter.prototype.getOpponent = function (me) {
     return (me === 1) ? 2 : 1;
-  }
+  };
 
   /**
    * This checks whether the move is a winning move.
@@ -200,59 +200,8 @@ var ticTacToe = ticTacToe || {};
    * @param {integer} sameSideMarksInRowCount number of similar side moves in this row/column/diagonal.
    */
   app.AiAdapter.prototype.wouldBeWinningSpot = function (thereIsAnEmptySquare, sameSideMarksInRowCount, board) {
-    return (thereIsAnEmptySquare !== false && sameSideMarksInRowCount === (this.getRowCount(board) - 1));
-  }
-
-  /**
-   * returns number of rows given number of squares.
-   */
-  app.AiAdapter.prototype.getRowCount = function (board) {
-    return Math.sqrt(board.getNumberOfSquares());
-  }
-
-  /**
-   * returns the number of rows that are diagonal. Could probably find this via an algorithm for any size board.
-   * Although it should always be 2.
-   */
-  app.AiAdapter.prototype.getDiagonalRowCount = function () {
-    return 2;
-  }
-
-  /**
-   * Algorithm for determining the square number based on column and position.
-   * @param {integer} columnNumber   left to right, 0,1,2.
-   * @param {integer} columnPosition top to bottom, 0,1,2.
-   */
-  app.AiAdapter.prototype.mapVerticalColumnToSquare = function (columnNumber, columnPosition, board) {
-    return columnNumber + (this.getRowCount(board) * columnPosition);
-  }
-
-  /**
-   * Algorithm for determining the square number based on row and position.
-   * @param {integer} columnNumber   top to bottom, 0,1,2.
-   * @param {integer} columnPosition left to right, 0,1,2.
-   */
-  app.AiAdapter.prototype.mapHorizontalColumnToSquare = function (columnNumber, columnPosition, board) {
-    return (this.getRowCount(board) * columnNumber) + columnPosition;
-  }
-
-  /**
-   * Algorithm for determining the square number based on row and position.
-   * 3x3
-   * 0,4,8. x = r*4 = row*(numRows+1) = (row+col)*(numRows+1-(col*2))
-   * 2,4,6. x = (r+1)*2 = (row+1)*(numRows-1) = (row+col)*(numRows+1-(col*2))
-   * 5x5
-   * 0,6,12,18,24. x = r*6 = row*(numRows+1) = (row+col)*(numRows+1-(col*2))
-   * 4,8,12,16,20. x = (r+1)*4 = (row+1)*(numRows-1) = (row+col)*(numRows+1-(col*2))
-   * 7x7
-   * 0,8,16,24,32,40,48.  x = r*8 = row*(numRows+1) = (row+col)*(numRows+1-(col*2))
-   * 6,12,18,24,30,36,42. x = (r+1)*6 = (row+1)*(numRows-1) = (row+col)*(numRows+1-(col*2))
-   * @param {integer} columnNumber   top left to bottom right = 0. top right to bottom left = 1.
-   * @param {integer} columnPosition from top to bottom, 0,1,2.
-   */
-  app.AiAdapter.prototype.mapDiagonalColumnToSquare = function (columnNumber, positionInColumn, board) {
-    return (positionInColumn + columnNumber) * (this.getRowCount(board)+1-(columnNumber * 2));
-  }
+    return (thereIsAnEmptySquare !== false && sameSideMarksInRowCount === (board.getRowCount() - 1));
+  };
 
   /**
    * Determines if a row has a single move in it and the rest of the row is empty.
@@ -274,7 +223,7 @@ var ticTacToe = ticTacToe || {};
     }
 
     return false;
-  }
+  };
 
   /**
    * Sub-method for diagonals for findMoveIfSoloAndRestEmpty
@@ -282,19 +231,19 @@ var ticTacToe = ticTacToe || {};
    * @param {integer} side
    */
   app.AiAdapter.prototype.findMoveIfSoloAndRestEmptyOnDiagonal = function (board, side) {
-    for (var colNum = 0; colNum < this.getDiagonalRowCount(); colNum++) {
+    for (var colNum = 0; colNum < board.getDiagonalRowCount(); colNum++) {
 
       var sideCount = 0;
       var oppositeSideCount = 0;
       var emptySpot = false;
-      for (var colPosition = 0; colPosition < this.getRowCount(board); colPosition++) {
-        if (this.isSquareEmpty(this.mapDiagonalColumnToSquare(colNum, colPosition, board), board)) {
+      for (var colPosition = 0; colPosition < board.getRowCount(); colPosition++) {
+        if (board.isSquareEmpty(board.mapDiagonalColumnToSquare(colNum, colPosition))) {
           emptySpot = colPosition;
         }
-        if (this.compareSquareValue(this.mapDiagonalColumnToSquare(colNum, colPosition, board), side, board)) {
+        if (board.isSquareEqual(board.mapDiagonalColumnToSquare(colNum, colPosition), side)) {
           sideCount++;
         }
-        if (this.compareSquareValue(this.mapDiagonalColumnToSquare(colNum, colPosition, board), this.getOpponent(side), board)) {
+        if (board.isSquareEqual(board.mapDiagonalColumnToSquare(colNum, colPosition), this.getOpponent(side))) {
           oppositeSideCount++;
         }
       }
@@ -304,16 +253,16 @@ var ticTacToe = ticTacToe || {};
           // this means the last empty spot was the middle one, which means
           // since there is only 1 mark in this row, 0 must be the opposite
           // since the mark is in 2 and opposite is preferred.
-          return this.mapDiagonalColumnToSquare(colNum, 0, board);
+          return board.mapDiagonalColumnToSquare(colNum, 0);
         } else {
           // either it is 0 or 2, both of which are fine because it is a corner.
 
-          return this.mapDiagonalColumnToSquare(colNum, emptySpot, board);
+          return board.mapDiagonalColumnToSquare(colNum, emptySpot);
         }
       }
     }
     return false;
-  }
+  };
 
   /**
    * Sub-method for verticals for findMoveIfSoloAndRestEmpty
@@ -321,19 +270,19 @@ var ticTacToe = ticTacToe || {};
    * @param {integer} side
    */
   app.AiAdapter.prototype.findMoveIfSoloAndRestEmptyOnVertical = function (board, side) {
-    for (var colNum = 0; colNum < this.getRowCount(board); colNum++) {
+    for (var colNum = 0; colNum < board.getRowCount(); colNum++) {
 
       var sideCount = 0;
       var oppositeSideCount = 0;
       var emptySpot = false;
-      for (var colPosition = 0; colPosition < this.getRowCount(board); colPosition++) {
-        if (this.isSquareEmpty(this.mapVerticalColumnToSquare(colNum,colPosition, board), board)) {
+      for (var colPosition = 0; colPosition < board.getRowCount(); colPosition++) {
+        if (board.isSquareEmpty(board.mapVerticalColumnToSquare(colNum,colPosition))) {
           emptySpot = colPosition;
         }
-        if (this.compareSquareValue(this.mapVerticalColumnToSquare(colNum,colPosition, board), side, board)) {
+        if (board.isSquareEqual(board.mapVerticalColumnToSquare(colNum,colPosition), side)) {
           sideCount++;
         }
-        if (this.compareSquareValue(this.mapVerticalColumnToSquare(colNum,colPosition, board), this.getOpponent(side), board)) {
+        if (board.isSquareEqual(board.mapVerticalColumnToSquare(colNum,colPosition), this.getOpponent(side))) {
           oppositeSideCount++;
         }
       }
@@ -343,16 +292,16 @@ var ticTacToe = ticTacToe || {};
           // this means the last empty spot was the middle one, which means
           // since there is only 1 mark in this row, 0 must be the opposite
           // since the mark is in 2 and opposite is preferred.
-          return this.mapVerticalColumnToSquare(colNum, 0, board);
+          return board.mapVerticalColumnToSquare(colNum, 0);
         } else {
           // either it is 0 or 2, both of which are fine because it is a corner.
 
-          return this.mapVerticalColumnToSquare(colNum, emptySpot, board);
+          return board.mapVerticalColumnToSquare(colNum, emptySpot);
         }
       }
     }
     return false;
-  }
+  };
 
   /**
    * Sub-method for horizontals for findMoveIfSoloAndRestEmpty
@@ -360,19 +309,19 @@ var ticTacToe = ticTacToe || {};
    * @param {integer} side
    */
   app.AiAdapter.prototype.findMoveIfSoloAndRestEmptyOnHorizontal = function (board, side) {
-    for (var colNum = 0; colNum < this.getRowCount(board); colNum++) {
+    for (var colNum = 0; colNum < board.getRowCount(); colNum++) {
 
       var sideCount = 0;
       var oppositeSideCount = 0;
       var emptySpot = false;
-      for (var colPosition = 0; colPosition < this.getRowCount(board); colPosition++) {
-        if (this.isSquareEmpty(this.mapHorizontalColumnToSquare(colNum, colPosition, board), board)) {
+      for (var colPosition = 0; colPosition < board.getRowCount(); colPosition++) {
+        if (board.isSquareEmpty(board.mapHorizontalColumnToSquare(colNum, colPosition))) {
           emptySpot = colPosition;
         }
-        if (this.compareSquareValue(this.mapHorizontalColumnToSquare(colNum, colPosition, board), side, board)) {
+        if (board.isSquareEqual(board.mapHorizontalColumnToSquare(colNum, colPosition), side)) {
           sideCount++;
         }
-        if (this.compareSquareValue(this.mapHorizontalColumnToSquare(colNum, colPosition, board), this.getOpponent(side), board)) {
+        if (board.isSquareEqual(board.mapHorizontalColumnToSquare(colNum, colPosition), this.getOpponent(side))) {
           oppositeSideCount++;
         }
       }
@@ -382,16 +331,16 @@ var ticTacToe = ticTacToe || {};
           // this means the last empty spot was the middle one, which means
           // since there is only 1 mark in this row, 0 must be the opposite
           // since the mark is in 2 and opposite is preferred.
-          return this.mapHorizontalColumnToSquare(colNum, 0, board);
+          return board.mapHorizontalColumnToSquare(colNum, 0);
         } else {
           // either it is 0 or 2, both of which are fine because it is a corner.
 
-          return this.mapHorizontalColumnToSquare(colNum, emptySpot, board);
+          return board.mapHorizontalColumnToSquare(colNum, emptySpot);
         }
       }
     }
     return false;
-  }
+  };
 
   /**
    * Determines if a row is a single move with the rest empty.
@@ -400,7 +349,7 @@ var ticTacToe = ticTacToe || {};
    */
   app.AiAdapter.prototype.isSoloAndRestEmpty = function (sideCount, enemyCount) {
     return (sideCount === 1 && enemyCount === 0);
-  }
+  };
 
   /**
    * counts the number of moves.
@@ -411,24 +360,24 @@ var ticTacToe = ticTacToe || {};
     var squaresPlayed = 0;
     var i;
     for (i = 0; i < count; i++) {
-      if (!this.isSquareEmpty(i, board)) {
+      if (!board.isSquareEmpty(i)) {
         squaresPlayed++;
       }
     }
     return squaresPlayed;
-  }
+  };
 
   /**
    * returns the first corner that has not been played.
    * @param {array} board
    */
   app.AiAdapter.prototype.findOpenCorner = function (board) {
-    if (this.isSquareEmpty(0, board)) { return 0; }
-    if (this.isSquareEmpty(2, board)) { return 2; }
-    if (this.isSquareEmpty(6, board)) { return 6; }
-    if (this.isSquareEmpty(8, board)) { return 8; }
+    if (board.isSquareEmpty(0)) { return 0; }
+    if (board.isSquareEmpty(2)) { return 2; }
+    if (board.isSquareEmpty(6)) { return 6; }
+    if (board.isSquareEmpty(8)) { return 8; }
     return false;
-  }
+  };
 
   /**
    * Determines whether the board has any moves on it yet.
@@ -436,69 +385,38 @@ var ticTacToe = ticTacToe || {};
    */
   app.AiAdapter.prototype.isFirstMove = function (board) {
     return (this.squaresPlayed(board) === 0);
-  }
+  };
 
   /**
    * Determines if there is a corner move and a middle move. Used only if there squaresPlayed === 2.
    * @param {array} board
    */
   app.AiAdapter.prototype.PlayedCornerThenPlayedMiddle = function (board) {
-    return (this.cornerHasBeenPlayed(board) && this.middleHasBeenPlayed(board));
-  }
+    return (this.cornerHasBeenPlayed(board) && board.middleHasBeenPlayed());
+  };
 
   /**
    * Returns whether any corner has been played.
    * @param {array} board
    */
   app.AiAdapter.prototype.cornerHasBeenPlayed = function (board) {
-    return (!this.isSquareEmpty(0, board)
-         || !this.isSquareEmpty(2, board)
-         || !this.isSquareEmpty(6, board)
-         || !this.isSquareEmpty(8, board));
-  }
-
-  /**
-   * returns whether the middle square has been played.
-   * @param {array} board
-   */
-  app.AiAdapter.prototype.middleHasBeenPlayed = function (board) {
-    return !this.isSquareEmpty(this.getMiddleSquare(board), board);
-  }
+    return (!board.isSquareEmpty(0)
+         || !board.isSquareEmpty(2)
+         || !board.isSquareEmpty(6)
+         || !board.isSquareEmpty(8));
+  };
 
   /**
    * finds the first empty opposite corner of a corner that has been played.
    * @param {array} board
    */
   app.AiAdapter.prototype.oppositeCorner = function (board) {
-    if (!this.isSquareEmpty(0, board) && this.isSquareEmpty(8, board)) { return 8; }
-    if (!this.isSquareEmpty(2, board) && this.isSquareEmpty(6, board)) { return 6; }
-    if (!this.isSquareEmpty(6, board) && this.isSquareEmpty(2, board)) { return 2; }
-    if (!this.isSquareEmpty(8, board) && this.isSquareEmpty(0, board)) { return 0; }
+    if (!board.isSquareEmpty(0) && board.isSquareEmpty(8)) { return 8; }
+    if (!board.isSquareEmpty(2) && board.isSquareEmpty(6)) { return 6; }
+    if (!board.isSquareEmpty(6) && board.isSquareEmpty(2)) { return 2; }
+    if (!board.isSquareEmpty(8) && board.isSquareEmpty(0)) { return 0; }
     return false;
-  }
-
-  /**
-   * Determines whether a square is empty.
-   * @param {integer} square
-   */
-  app.AiAdapter.prototype.isSquareEmpty = function (square, board) {
-    return this.compareSquareValue(square, 0, board);
-  }
-
-  /**
-   * Determines whether a square is empty.
-   * @param {integer} square
-   */
-  app.AiAdapter.prototype.compareSquareValue = function (square, side, board) {
-    return (board.getSquareValue(square) === side);
-  }
-
-  /**
-   * returns the middle square of the board. Could be turned in to an algorithm based on size of board.
-   */
-  app.AiAdapter.prototype.getMiddleSquare = function (board) {
-    return (board.getNumberOfSquares() - 1) / 2;
-  }
+  };
 
   /**
    * Determines if the board has a middle square and two opposite corners played.
@@ -506,11 +424,11 @@ var ticTacToe = ticTacToe || {};
    * @param {array} board
    */
   app.AiAdapter.prototype.playedOppositeCornersAndMiddle = function (board) {
-    if (this.opposingCornersPlayed(board) && this.middleHasBeenPlayed(board)) {
+    if (this.opposingCornersPlayed(board) && board.middleHasBeenPlayed()) {
       return true;
     }
     return false;
-  }
+  };
 
   /**
    * Helper method for playedOppositeCornersAndMiddle.
@@ -518,21 +436,21 @@ var ticTacToe = ticTacToe || {};
    * @param {array} board
    */
   app.AiAdapter.prototype.opposingCornersPlayed = function (board) {
-    return ((!this.isSquareEmpty(0, board) && !this.isSquareEmpty(8, board))
-         || (!this.isSquareEmpty(2, board) && !this.isSquareEmpty(6, board)));
-  }
+    return ((!board.isSquareEmpty(0) && !board.isSquareEmpty(8))
+         || (!board.isSquareEmpty(2) && !board.isSquareEmpty(6)));
+  };
 
   /**
    * Returns the first available square that is not a corner but is on the outside.
    * @param {array} board
    */
   app.AiAdapter.prototype.edgeNotCorner = function (board) {
-    if (this.isSquareEmpty(1, board)) { return 1; }
-    if (this.isSquareEmpty(3, board)) { return 3; }
-    if (this.isSquareEmpty(5, board)) { return 5; }
-    if (this.isSquareEmpty(7, board)) { return 7; }
+    if (board.isSquareEmpty(1)) { return 1; }
+    if (board.isSquareEmpty(3)) { return 3; }
+    if (board.isSquareEmpty(5)) { return 5; }
+    if (board.isSquareEmpty(7)) { return 7; }
     return false;
-  }
+  };
 
 
 })(ticTacToe);

@@ -73,5 +73,75 @@ var ticTacToe = ticTacToe || {};
     return 2;
   };
 
+  app.Board.prototype.getSquaresPlayed = function () {
+    var squaresPlayed = 0;
+    var i;
+    for (i = 0; i < this.getNumberOfSquares(); i++) {
+      if (!this.isSquareEmpty(i)) {
+        squaresPlayed++;
+      }
+    }
+    return squaresPlayed;
+  };
+
+  app.Board.prototype.isSquareEmpty = function (square) {
+    return this.isSquareEqual(square, 0);
+  };
+
+  app.Board.prototype.isSquareEqual = function (square, value) {
+    return (this.getSquareValue(square) === value);
+  };
+
+  app.Board.prototype.getMiddleSquare = function () {
+    return (this.getNumberOfSquares() - 1) / 2;
+  };
+
+  app.Board.prototype.middleHasBeenPlayed = function () {
+    return !this.isSquareEmpty(this.getMiddleSquare());
+  };
+
+  app.Board.prototype.getRowCount = function () {
+    return Math.sqrt(this.getNumberOfSquares());
+  };
+
+  app.Board.prototype.getDiagonalRowCount = function () {
+    return 2;
+  };
+
+  /**
+   * Algorithm for determining the square number based on column and position.
+   * @param {integer} columnNumber   left to right, 0,1,2.
+   * @param {integer} columnPosition top to bottom, 0,1,2.
+   */
+  app.Board.prototype.mapVerticalColumnToSquare = function (columnNumber, positionInColumn) {
+    return columnNumber + (this.getRowCount() * positionInColumn);
+  };
+
+  /**
+   * Algorithm for determining the square number based on row and position.
+   * @param {integer} columnNumber   top to bottom, 0,1,2.
+   * @param {integer} columnPosition left to right, 0,1,2.
+   */
+  app.Board.prototype.mapHorizontalColumnToSquare = function (columnNumber, positionInColumn) {
+    return (this.getRowCount() * columnNumber) + positionInColumn;
+  };
+
+  /**
+   * Algorithm for determining the square number based on row and position.
+   * 3x3
+   * 0,4,8. x = r*4 = row*(numRows+1) = (row+col)*(numRows+1-(col*2))
+   * 2,4,6. x = (r+1)*2 = (row+1)*(numRows-1) = (row+col)*(numRows+1-(col*2))
+   * 5x5
+   * 0,6,12,18,24. x = r*6 = row*(numRows+1) = (row+col)*(numRows+1-(col*2))
+   * 4,8,12,16,20. x = (r+1)*4 = (row+1)*(numRows-1) = (row+col)*(numRows+1-(col*2))
+   * 7x7
+   * 0,8,16,24,32,40,48.  x = r*8 = row*(numRows+1) = (row+col)*(numRows+1-(col*2))
+   * 6,12,18,24,30,36,42. x = (r+1)*6 = (row+1)*(numRows-1) = (row+col)*(numRows+1-(col*2))
+   * @param {integer} columnNumber   top left to bottom right = 0. top right to bottom left = 1.
+   * @param {integer} columnPosition from top to bottom, 0,1,2.
+   */
+  app.Board.prototype.mapDiagonalColumnToSquare = function (columnNumber, positionInColumn) {
+    return (positionInColumn + columnNumber) * (this.getRowCount()+1-(columnNumber * 2));
+  };
 
 })(ticTacToe);
