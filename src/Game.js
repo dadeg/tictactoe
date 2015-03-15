@@ -18,7 +18,7 @@ var Game = function(player1, player2) {
    * @type {Object}
    * @default undefined
    */
-  this.player1 = player1 || {};
+  this.player1 = player1;
 
   /**
    * A reference to the player2 object instance
@@ -27,7 +27,7 @@ var Game = function(player1, player2) {
    * @type {Object}
    * @default undefined
    */
-  this.player2 = player2 || {};
+  this.player2 = player2;
 
   /**
    * An array representing the tic tac toe game board
@@ -56,15 +56,6 @@ var Game = function(player1, player2) {
    */
   this.gameIsDrawn = false;
 
-  /**
-   * A reference to the PubSub object instance
-   *
-   * @property pubSub
-   * @type {Object}
-   * @default undefined
-   */
-  this.pubSub = new PubSub() || {};
-
   this.init();
 };
 
@@ -90,9 +81,7 @@ Game.prototype.init = function() {
  */
 Game.prototype.assignSides = function() {
   this.player1.side = 1;
-  this.player1.setSide(1);
   this.player2.side = 2;
-  this.player2.setSide(2);
 
   return this;
 };
@@ -115,15 +104,11 @@ Game.prototype.runGame = function(currentPlayer) {
   }
 
   if (!this.gameIsWon && !this.gameIsDrawn) {
-    move = currentPlayer.getMove(this.gameBoard);
+    move = currentPlayer.getMove(currentPlayer.side);
     this.updateGameBoard(move, currentPlayer);
     this.checkForWin();
     this.checkForDraw();
     this.runGame(nextPlayer);
-  } else if (this.gameIsWon){
-    this.publishWin(currentPlayer.side);
-  } else if (this.gameIsDrawn){
-    this.publishDraw();
   }
 };
 
@@ -141,10 +126,6 @@ Game.prototype.updateGameBoard = function(move, currentPlayer) {
   } else {
     // notify player move was illegal
   }
-
-  this.pubSub.publish('gameUpdate', {
-    gameBoard: this.gameBoard
-  });
 
   return this;
 };
@@ -182,34 +163,5 @@ Game.prototype.checkForDraw = function() {
   if (this.gameBoard.indexOf(0) < 0) {
     this.gameIsDrawn = true;
   }
-  return this;
-};
-
-/**
- * Publishes to a PubSub object with winner information for use by other modules
- *
- * @method publishWin
- * @param {Int} winningSide The winning side
- * @chainable
- */
-Game.prototype.publishWin = function(winningSide) {
-  this.pubSubs.publish('gameWon', {
-    winner: winningSide
-  });
-
-  return this;
-};
-
-/**
- * Publishes to a PubSub object with winner information for use by other modules
- *
- * @method publishDraw
- * @chainable
- */
-Game.prototype.publishDraw = function() {
-  this.pubSubs.publish('gameDrawn', {
-    draw: true
-  });
-
   return this;
 };

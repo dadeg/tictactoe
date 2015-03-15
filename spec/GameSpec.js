@@ -1,20 +1,11 @@
 describe("Game", function() {
   var game;
+  var testBoard = new ticTacToe.Board({numberOfSquares: 9});
+  var player1 = new ticTacToe.Player({adapter: new ticTacToe.AiAdapter, name: 'AI Player 1'});
+  var player2 = new ticTacToe.Player({adapter: new ticTacToe.AiAdapter, name: 'AI Player 2'});
 
   beforeEach(function() {
-    game = new Game();
-  });
-
-  it('should have a property player1', function() {
-    expect(game.player1).not.toBeUndefined();
-  });
-
-  it('should have a property player2', function() {
-    expect(game.player2).not.toBeUndefined();
-  });
-
-  it('should have a property gameBoard', function() {
-    expect(game.gameBoard).not.toBeUndefined();
+    game = new Game(player1, player2);
   });
 
   it('should have an initialization method that returns the Game object', function() {
