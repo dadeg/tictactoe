@@ -114,6 +114,7 @@ var ticTacToe = ticTacToe || {};
    * @param {integer} columnPosition top to bottom, 0,1,2.
    */
   app.Board.prototype.mapVerticalColumnToSquare = function (columnNumber, positionInColumn) {
+    if (columnNumber >= this.getRowCount() || positionInColumn >= this.getRowCount()) return undefined;
     return columnNumber + (this.getRowCount() * positionInColumn);
   };
 
@@ -123,7 +124,18 @@ var ticTacToe = ticTacToe || {};
    * @param {integer} columnPosition left to right, 0,1,2.
    */
   app.Board.prototype.mapHorizontalColumnToSquare = function (columnNumber, positionInColumn) {
+    if (columnNumber >= this.getRowCount() || positionInColumn >= this.getRowCount()) return undefined;
     return (this.getRowCount() * columnNumber) + positionInColumn;
+  };
+
+  /**
+   * algorithm for determining row and position in row based on the square
+   * @param {integer} square the square on the board
+   */
+  app.Board.prototype.mapSquareToHorizontalColumn = function (square) {
+    var column = Math.floor(square/this.getRowCount());
+    var position = square % this.getRowCount();
+    return [column, position];
   };
 
   /**
@@ -141,7 +153,68 @@ var ticTacToe = ticTacToe || {};
    * @param {integer} columnPosition from top to bottom, 0,1,2.
    */
   app.Board.prototype.mapDiagonalColumnToSquare = function (columnNumber, positionInColumn) {
+    if (columnNumber >= this.getDiagonalRowCount() || positionInColumn >= this.getRowCount()) return undefined;
     return (positionInColumn + columnNumber) * (this.getRowCount()+1-(columnNumber * 2));
+  };
+
+  /**
+   * return array of edge squares.
+   */
+  app.Board.prototype.findEdges = function () {
+    var edges = [];
+    var row = 0;
+    while (row < this.getRowCount()) {
+      if(row === 0 || row === this.getRowCount()-1) {
+        var column = 0;
+        while (column < this.getRowCount()) {
+          edges.push(this.mapHorizontalColumnToSquare(row, column));
+          column++;
+        }
+      } else {
+        edges.push(this.mapHorizontalColumnToSquare(row, this.getFirstColumn()));
+        edges.push(this.mapHorizontalColumnToSquare(row, this.getLastColumn()));
+      }
+      row++;
+    }
+    return edges;
+  };
+
+  /**
+   * returns array of corner squares.
+   */
+  app.Board.prototype.findCorners = function () {
+    return [this.mapHorizontalColumnToSquare(this.getFirstColumn(), this.getFirstColumn()),
+            this.mapHorizontalColumnToSquare(this.getFirstColumn(), this.getLastColumn()),
+            this.mapHorizontalColumnToSquare(this.getLastColumn(), this.getFirstColumn()),
+            this.mapHorizontalColumnToSquare(this.getLastColumn(), this.getLastColumn())];
+  };
+
+  app.Board.prototype.getFirstColumn = function () {
+    return 0;
+  };
+
+  app.Board.prototype.getLastColumn = function () {
+    return this.getRowCount()-1;
+  };
+
+  app.Board.prototype.getOppositeCorner = function (square) {
+    if (this.findCorners().indexOf(square) === -1) throw new Error("square is not a corner");
+
+    var coordinates = this.mapSquareToHorizontalColumn(square);
+
+    if (coordinates[0] === this.getFirstColumn()) {
+      coordinates[0] = this.getLastColumn();
+    } else {
+      coordinates[0] = this.getFirstColumn();
+    }
+
+    if (coordinates[1] === this.getFirstColumn()) {
+      coordinates[1] = this.getLastColumn();
+    } else {
+      coordinates[1] = this.getFirstColumn();
+    }
+
+    return this.mapHorizontalColumnToSquare(coordinates[0], coordinates[1]);
   };
 
 })(ticTacToe);
